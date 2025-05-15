@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChoppSelf - Sistema de Autoatendimento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script_data_entrada.js') }}"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SelfChopp</h1>
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div>
+                    <div>Cartão Ativo</div>
+                    <div class="saldo-value">R$ 50,00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" data-tab="inicio">Início</div>
+                <div class="tab" data-tab="cervejas">Cervejas</div>
+                <div class="tab" data-tab="cartao">Cartão de Consumo</div>
+                <div class="tab" data-tab="historico">Histórico</div>
+            </div>
+
+            <div class="tab-content active" id="inicio">
+                <div class="card-title">Bem-vindo ao SelfChopp</div>
+
+                <div class="user-profile-container">
+                    <div class="infos_pessoais">
+                        <div class="infos_content">
+                            <h3>Informações Pessoais</h3>
+                            <p><strong>Nome:</strong> Marcos</p>
+                            <p><strong>Data de Nascimento:</strong> 15/03/1985</p>
+                            <p><strong>Email:</strong> marcos@email.com</p>
+                            <p><strong>Telefone:</strong> (11) 98765-4321</p>
+                            <p><strong>Data de Cadastro:</strong> 10/01/2025</p>
+                            <div class="entrada-cliente">
+                                <h4>Informações da Sessão Atual</h4>
+                                <p><strong>Entrada:</strong> <span id="data-entrada">15/05/2025 19:45</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rfid-card">
+                        <div class="card-content">
+                            <div class="card-chip"></div>
+                            <div>
+                                <div class="card-number">Cartão Nº 5432</div>
+                                <div class="card-name">Uso interno - SelfChopp</div>
+                                <div class="card-expiry">Utilize e devolva ao final</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="saldo-display">
+                    <div class="saldo-label">Saldo do Cartão</div>
+                    <div class="saldo-value">R$ 50,00</div>
+                </div>
+
+                <div class="debito-display">
+                    <div class="debito-label">Consumo Pendente</div>
+                    <div class="debito-value">R$ 0,00</div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button class="btn" onclick="openRechargeModal()">Recarregar Cartão</button>
+                    <button class="btn btn-outline" onclick="changeTab('cervejas')">Ver Cervejas</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="cartao">
+                <div class="card-title">Cartão de Consumo</div>
+
+                <div class="rfid-card">
+                    <div class="card-content">
+                        <div class="card-chip"></div>
+                        <div>
+                            <div class="card-number">Cartão Nº 5432</div>
+                            <div class="card-name">Uso interno - ChoppSelf</div>
+                            <div class="card-expiry">Utilize e devolva ao final</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="saldo-display">
+                    <div class="saldo-label">Saldo do Cartão</div>
+                    <div class="saldo-value">R$ 50,00</div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
+                    <button class="btn" onclick="openRechargeModal()">Recarregar Cartão</button>
+                    <button class="btn btn-outline">Transferir Saldo</button>
+                    <button class="btn btn-outline">Bloquear Cartão</button>
+                </div>
+            </div>
+        </div>
+        <!-- Modal de Recarga -->
+        <div id="recharge-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Recarregar Cartão</h2>
+                    <span class="close-modal" onclick="closeRechargeModal()">&times;</span>
+                </div>
+
+                <div class="flow-steps">
+                    <div class="step active">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Valor</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Pagamento</div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Confirmação</div>
+                    </div>
+                </div>
+
+                <div id="step-valor" class="recharge-step active">
+                    <div class="form-group">
+                        <label for="recharge-amount">Selecione o valor de recarga:</label>
+                        <div class="amount-options">
+                            <div class="amount-option" data-value="50">R$ 50,00</div>
+                            <div class="amount-option" data-value="100">R$ 100,00</div>
+                            <div class="amount-option" data-value="150">R$ 150,00</div>
+                            <div class="amount-option" data-value="200">R$ 200,00</div>
+                        </div>
+                        <div class="custom-amount">
+                            <label for="custom-value">Ou digite um valor personalizado:</label>
+                            <div class="custom-amount-input">
+                                <span class="currency-symbol">R$</span>
+                                <input type="number" id="custom-value" min="10" step="5" placeholder="0,00">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" onclick="closeRechargeModal()">Cancelar</button>
+                        <button class="btn" onclick="nextStep(2)" id="btn-next-step">Próximo</button>
+                    </div>
+                </div>
+
+                <div id="step-pagamento" class="recharge-step">
+                    <div class="form-group">
+                        <label>Selecione o método de pagamento:</label>
+                        <div class="payment-methods">
+                            <div class="payment-method" data-method="pix">
+                                <div class="payment-icon">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/6124/6124998.png" alt="PIX"
+                                        width="50">
+                                </div>
+                                <div>PIX</div>
+                            </div>
+                            <div class="payment-method" data-method="credit">
+                                <div class="payment-icon">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/6963/6963703.png"
+                                        alt="Cartão de Crédito" width="50">
+                                </div>
+                                <div>Cartão de Crédito</div>
+                            </div>
+                            <div class="payment-method" data-method="debit">
+                                <div class="payment-icon">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4021/4021708.png"
+                                        alt="Cartão de Débito" width="50">
+                                </div>
+                                <div>Cartão de Débito</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" onclick="prevStep(1)">Voltar</button>
+                        <button class="btn" onclick="nextStep(3)" id="btn-payment-next" disabled>Próximo</button>
+                    </div>
+                </div>
+
+                <div id="step-confirmacao" class="recharge-step">
+                    <div class="confirmation-details">
+                        <h3>Confirmar Recarga</h3>
+                        <div class="confirmation-item">
+                            <div class="confirmation-label">Valor da Recarga:</div>
+                            <div class="confirmation-value" id="confirm-value">R$ 50,00</div>
+                        </div>
+                        <div class="confirmation-item">
+                            <div class="confirmation-label">Método de Pagamento:</div>
+                            <div class="confirmation-value" id="confirm-method">PIX</div>
+                        </div>
+                        <div class="confirmation-item total">
+                            <div class="confirmation-label">Total a Pagar:</div>
+                            <div class="confirmation-value" id="confirm-total">R$ 50,00</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" onclick="prevStep(2)">Voltar</button>
+                        <button class="btn btn-success" onclick="confirmRecharge()">Confirmar Pagamento</button>
+                    </div>
+                </div>
+
+                <div id="processing-payment" class="recharge-step">
+                    <div class="processing-container">
+                        <div class="spinner"></div>
+                        <p>Processando pagamento...</p>
+                        <p>Por favor, aguarde.</p>
+                    </div>
+                </div>
+
+                <div id="payment-success" class="recharge-step">
+                    <div class="success-container">
+                        <div class="success-icon">✓</div>
+                        <h3>Pagamento Confirmado!</h3>
+                        <p>Seu cartão foi recarregado com sucesso.</p>
+                        <div class="new-balance">
+                            <div>Novo Saldo:</div>
+                            <div class="new-balance-value" id="new-balance-value">R$ 100,00</div>
+                        </div>
+                        <button class="btn" onclick="closeRechargeModal()">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Elemento de Carregamento Global -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+        </div>
+    </div>
+</body>
+
+</html>
