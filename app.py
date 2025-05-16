@@ -5,7 +5,7 @@ app = Flask(__name__)
 # Rota principal
 @app.route('/')
 def home():
-    return render_template('interface_chopp.html')
+    return render_template('index.html')
 
 # Rota simulada para retornar saldo
 @app.route('/api/saldo')
