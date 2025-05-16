@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SelfChopp - Leitura de Cartão</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         .card-reader-container {
             max-width: 500px;
@@ -60,12 +60,10 @@
                 transform: scale(1);
                 opacity: 1;
             }
-
             50% {
                 transform: scale(1.05);
                 opacity: 0.8;
             }
-
             100% {
                 transform: scale(1);
                 opacity: 1;
@@ -114,6 +112,9 @@
 
             <div class="card-form" id="inactive-card-form">
                 <h3>Cadastro de Cliente</h3>
+                <div class="form-row" id="card-number-container">
+                    <!-- Número do cartão será inserido aqui -->
+                </div>
                 <div class="form-row">
                     <label for="client-name">Nome:</label>
                     <input type="text" id="client-name" placeholder="Digite o nome do cliente">
@@ -146,90 +147,125 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const btnSimulateInactive = document.getElementById('btn-simulate-inactive');
             const btnSimulateActive = document.getElementById('btn-simulate-active');
             const inactiveCardForm = document.getElementById('inactive-card-form');
             const btnActivateCard = document.getElementById('btn-activate-card');
+            const cardNumberContainer = document.getElementById('card-number-container');
             const loading = document.getElementById('loading');
+            
+            let currentCardNumber = null;
 
             // Simular cartão inativo
-            btnSimulateInactive.addEventListener('click', function () {
-                // Gerar número aleatório de cartão entre 1 e 20
-                const cardNumber = Math.floor(Math.random() * 20) + 1;
-
-                // Mostrar formulário de cadastro
-                inactiveCardForm.style.display = 'block';
-
-                // Adicionar número do cartão ao formulário
-                const cardNumberElement = document.createElement('div');
-                cardNumberElement.className = 'form-row';
-                cardNumberElement.innerHTML = `<strong>Número do Cartão: ${cardNumber.toString().padStart(4, '0')}</strong>`;
-                inactiveCardForm.insertBefore(cardNumberElement, inactiveCardForm.firstChild);
-            });
-
-            // Simular cartão ativo
-            btnSimulateActive.addEventListener('click', function () {
-                // Array de cartões ativos simulados
-                const activeCards = [
-                    { id: 5432, name: 'Marcos', type: 'pre', balance: 111.00, pending: 0.00 },
-                    { id: 1234, name: 'Ana', type: 'pre', balance: 75.50, pending: 12.50 },
-                    { id: 7890, name: 'Carlos', type: 'pos', balance: 0.00, pending: 45.00 },
-                    { id: 4567, name: 'Julia', type: 'pos', balance: 0.00, pending: 32.75 },
-                    { id: 9876, name: 'Pedro', type: 'pre', balance: 120.00, pending: 0.00 }
-                ];
-
-                // Selecionar um cartão aleatório
-                const randomCard = activeCards[Math.floor(Math.random() * activeCards.length)];
-
+            btnSimulateInactive.addEventListener('click', function() {
                 // Mostrar carregamento
                 loading.style.display = 'flex';
-
-                // Simular tempo de leitura
-                setTimeout(() => {
-                    // Salvar dados do cartão na sessionStorage
-                    sessionStorage.setItem('cardData', JSON.stringify(randomCard));
-
-                    // Redirecionar para a interface principal
-                    window.location.href = '/';
-                }, 1500);
+                
+                // Fazer requisição para gerar número de cartão
+                fetch('/api/generate-card-number')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Salvar número do cartão
+                            currentCardNumber = data.card_number;
+                            
+                            // Mostrar formulário de cadastro
+                            inactiveCardForm.style.display = 'block';
+                            
+                            // Adicionar número do cartão ao formulário
+                            cardNumberContainer.innerHTML = `<strong>Número do Cartão: ${currentCardNumber.toString().padStart(4, '0')}</strong>`;
+                            
+                            // Esconder carregamento
+                            loading.style.display = 'none';
+                        } else {
+                            alert('Erro ao gerar número de cartão. Tente novamente.');
+                            loading.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao comunicar com o servidor. Tente novamente.');
+                        loading.style.display = 'none';
+                    });
             });
+
             // Simular cartão ativo
-            btnActivateCard.addEventListener('click', function () {
+            btnSimulateActive.addEventListener('click', function() {
+                // Mostrar carregamento
+                loading.style.display = 'flex';
+                
+                // Fazer requisição para simular cartão ativo
+                fetch('/api/simulate-active-card')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Redirecionar para a interface principal
+                            window.location.href = '/';
+                        } else {
+                            alert('Erro ao simular cartão ativo. Tente novamente.');
+                            loading.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao comunicar com o servidor. Tente novamente.');
+                        loading.style.display = 'none';
+                    });
+            });
+
+            // Ativar cartão inativo
+            btnActivateCard.addEventListener('click', function() {
                 const name = document.getElementById('client-name').value;
                 const email = document.getElementById('client-email').value;
                 const phone = document.getElementById('client-phone').value;
                 const cardType = document.getElementById('card-type').value;
-
+                
                 if (!name || !email || !phone) {
                     alert('Por favor, preencha todos os campos!');
                     return;
                 }
-
+                
+                if (!currentCardNumber) {
+                    alert('Erro: Número de cartão não encontrado. Tente novamente.');
+                    return;
+                }
+                
                 // Mostrar carregamento
                 loading.style.display = 'flex';
-
-                // Simular tempo de processamento
-                setTimeout(() => {
-                    // Criar objeto de cartão
-                    const cardNumber = inactiveCardForm.querySelector('strong').textContent.split(': ')[1];
-                    const newCard = {
-                        id: parseInt(cardNumber),
-                        name: name,
-                        email: email,
-                        phone: phone,
-                        type: cardType,
-                        balance: cardType === 'pre' ? 0.00 : 0.00,
-                        pending: 0.00,
-                        entryDate: new Date().toISOString() // Adicionar data de entrada
-                    };
-
-                    // Salvar dados do cartão na sessionStorage
-                    sessionStorage.setItem('cardData', JSON.stringify(newCard));
-
-                    // Redirecionar para a interface principal
-                    window.location.href = '/';
-                }, 1500);
+                
+                // Preparar dados para envio
+                const cardData = {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    card_type: cardType,
+                    card_number: currentCardNumber
+                };
+                
+                // Fazer requisição para ativar cartão
+                fetch('/api/activate-card', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(cardData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirecionar para a interface principal
+                        window.location.href = '/';
+                    } else {
+                        alert(`Erro: ${data.message}`);
+                        loading.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao comunicar com o servidor. Tente novamente.');
+                    loading.style.display = 'none';
+                });
             });
         });
     </script>
