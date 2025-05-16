@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SelfChopp - Leitura de Cartão</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .card-reader-container {
+            max-width: 500px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .card-reader-box {
+            background-color: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-reader-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-reader-icon img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .card-reader-message {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .simulation-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .card-animation {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .card-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-form h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .form-row {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SelfChopp</h1>
+        </div>
+
+        <div class="card-reader-container">
+            <div class="card-reader-box">
+                <div class="card-reader-icon card-animation">
+                    <img src="https://cdn-icons-png.flaticon.com/512/5673/5673151.png" alt="RFID Card">
+                </div>
+                <div class="card-reader-message">
+                    Aguardando dados do cartão...
+                </div>
+                <div class="simulation-buttons">
+                    <button class="btn" id="btn-simulate-inactive">Simular Cartão Inativo</button>
+                    <button class="btn" id="btn-simulate-active">Simular Cartão Ativo</button>
+                </div>
+            </div>
+
+            <div class="card-form" id="inactive-card-form">
+                <h3>Cadastro de Cliente</h3>
+                <div class="form-row">
+                    <label for="client-name">Nome:</label>
+                    <input type="text" id="client-name" placeholder="Digite o nome do cliente">
+                </div>
+                <div class="form-row">
+                    <label for="client-email">Email:</label>
+                    <input type="email" id="client-email" placeholder="Digite o email do cliente">
+                </div>
+                <div class="form-row">
+                    <label for="client-phone">Telefone:</label>
+                    <input type="tel" id="client-phone" placeholder="Digite o telefone do cliente">
+                </div>
+                <div class="form-row">
+                    <label for="card-type">Tipo de Cartão:</label>
+                    <select id="card-type">
+                        <option value="pre">Pré-pago</option>
+                        <option value="pos">Pós-pago</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <button class="btn" id="btn-activate-card">Ativar Cartão</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elemento de Carregamento Global -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnSimulateInactive = document.getElementById('btn-simulate-inactive');
+            const btnSimulateActive = document.getElementById('btn-simulate-active');
+            const inactiveCardForm = document.getElementById('inactive-card-form');
+            const btnActivateCard = document.getElementById('btn-activate-card');
+            const loading = document.getElementById('loading');
+
+            // Simular cartão inativo
+            btnSimulateInactive.addEventListener('click', function () {
+                // Gerar número aleatório de cartão entre 1 e 20
+                const cardNumber = Math.floor(Math.random() * 20) + 1;
+
+                // Mostrar formulário de cadastro
+                inactiveCardForm.style.display = 'block';
+
+                // Adicionar número do cartão ao formulário
+                const cardNumberElement = document.createElement('div');
+                cardNumberElement.className = 'form-row';
+                cardNumberElement.innerHTML = `<strong>Número do Cartão: ${cardNumber.toString().padStart(4, '0')}</strong>`;
+                inactiveCardForm.insertBefore(cardNumberElement, inactiveCardForm.firstChild);
+            });
+
+            // Simular cartão ativo
+            btnSimulateActive.addEventListener('click', function () {
+                // Array de cartões ativos simulados
+                const activeCards = [
+                    { id: 5432, name: 'Marcos', type: 'pre', balance: 111.00, pending: 0.00 },
+                    { id: 1234, name: 'Ana', type: 'pre', balance: 75.50, pending: 12.50 },
+                    { id: 7890, name: 'Carlos', type: 'pos', balance: 0.00, pending: 45.00 },
+                    { id: 4567, name: 'Julia', type: 'pos', balance: 0.00, pending: 32.75 },
+                    { id: 9876, name: 'Pedro', type: 'pre', balance: 120.00, pending: 0.00 }
+                ];
+
+                // Selecionar um cartão aleatório
+                const randomCard = activeCards[Math.floor(Math.random() * activeCards.length)];
+
+                // Mostrar carregamento
+                loading.style.display = 'flex';
+
+                // Simular tempo de leitura
+                setTimeout(() => {
+                    // Salvar dados do cartão na sessionStorage
+                    sessionStorage.setItem('cardData', JSON.stringify(randomCard));
+
+                    // Redirecionar para a interface principal
+                    window.location.href = '/';
+                }, 1500);
+            });
+            // Simular cartão ativo
+            btnActivateCard.addEventListener('click', function () {
+                const name = document.getElementById('client-name').value;
+                const email = document.getElementById('client-email').value;
+                const phone = document.getElementById('client-phone').value;
+                const cardType = document.getElementById('card-type').value;
+
+                if (!name || !email || !phone) {
+                    alert('Por favor, preencha todos os campos!');
+                    return;
+                }
+
+                // Mostrar carregamento
+                loading.style.display = 'flex';
+
+                // Simular tempo de processamento
+                setTimeout(() => {
+                    // Criar objeto de cartão
+                    const cardNumber = inactiveCardForm.querySelector('strong').textContent.split(': ')[1];
+                    const newCard = {
+                        id: parseInt(cardNumber),
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        type: cardType,
+                        balance: cardType === 'pre' ? 0.00 : 0.00,
+                        pending: 0.00,
+                        entryDate: new Date().toISOString() // Adicionar data de entrada
+                    };
+
+                    // Salvar dados do cartão na sessionStorage
+                    sessionStorage.setItem('cardData', JSON.stringify(newCard));
+
+                    // Redirecionar para a interface principal
+                    window.location.href = '/';
+                }, 1500);
+            });
+        });
+    </script>
+</body>
+
+</html>

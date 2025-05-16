@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChoppSelf - Sistema de Autoatendimento</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='script_data_entrada.js') }}"></script> 
+    <script src="{{ url_for('static', filename='script_data_entrada.js') }}"></script>
 </head>
 
 <body>
@@ -232,6 +232,149 @@
             <div class="spinner"></div>
         </div>
     </div>
+
+    
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Verificar se há dados de cartão na sessionStorage
+        const cardData = JSON.parse(sessionStorage.getItem('cardData') || '{}');
+
+        if (cardData.id) {
+            // Atualizar informações do cartão na interface
+            document.querySelector('.card-number').textContent = `Cartão Nº ${cardData.id}`;
+
+            // Atualizar saldo e pendente
+            document.querySelectorAll('.saldo-value').forEach(el => {
+                el.textContent = `R$ ${cardData.balance.toFixed(2).replace('.', ',')}`;
+            });
+
+            document.querySelector('.debito-value').textContent = `R$ ${cardData.pending.toFixed(2).replace('.', ',')}`;
+
+            // Atualizar informações pessoais do cliente
+            if (cardData.name) {
+                // Atualizar avatar
+                document.querySelector('.user-avatar').textContent = cardData.name.charAt(0);
+
+                // Atualizar informações pessoais
+                const infosElements = document.querySelectorAll('.infos_content p');
+
+                // Percorrer todos os elementos p dentro de infos_content
+                infosElements.forEach(element => {
+                    const text = element.textContent;
+
+                    // Atualizar nome
+                    if (text.includes('Nome:')) {
+                        element.innerHTML = `<strong>Nome:</strong> ${cardData.name}`;
+                    }
+
+                    // Atualizar email
+                    if (text.includes('Email:')) {
+                        element.innerHTML = `<strong>Email:</strong> ${cardData.email || 'marcos@email.com'}`;
+                    }
+
+                    // Atualizar telefone
+                    if (text.includes('Telefone:')) {
+                        element.innerHTML = `<strong>Telefone:</strong> ${cardData.phone || '(11) 98765-4321'}`;
+                    }
+                });
+
+                // Atualizar data de entrada
+                if (cardData.entryDate) {
+                    const date = new Date(cardData.entryDate);
+                    const dia = String(date.getDate()).padStart(2, '0');
+                    const mes = String(date.getMonth() + 1).padStart(2, '0');
+                    const ano = date.getFullYear();
+                    const horas = String(date.getHours()).padStart(2, '0');
+                    const minutos = String(date.getMinutes()).padStart(2, '0');
+
+                    const dataFormatada = `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+
+                    const entryElement = document.getElementById('data-entrada');
+                    if (entryElement) {
+                        entryElement.textContent = dataFormatada;
+                    }
+                }
+            }
+
+            // Adicionar botões específicos com base no tipo de cartão
+            const actionsContainer = document.createElement('div');
+            actionsContainer.style.display = 'flex';
+            actionsContainer.style.gap = '10px';
+            actionsContainer.style.justifyContent = 'center';
+            actionsContainer.style.marginTop = '20px';
+
+            if (cardData.type === 'pre') {
+                // Botões para cartão pré-pago
+                actionsContainer.innerHTML = `
+                    <button class="btn" onclick="openRechargeModal()">Recarregar</button>
+                    <button class="btn btn-outline" onclick="encerrarSessao()">Encerrar</button>
+                    <button class="btn btn-outline" onclick="mudarTipo()">Mudar Tipo</button>
+                `;
+            } else {
+                // Botões para cartão pós-pago
+                actionsContainer.innerHTML = `
+                    <button class="btn" onclick="confirmarPagamento()">Confirmar Pagamento</button>
+                    <button class="btn btn-outline" onclick="encerrarSessao()">Encerrar</button>
+                    <button class="btn btn-outline" onclick="mudarTipo()">Mudar Tipo</button>
+                `;
+            }
+
+            // Adicionar os botões à interface
+            const debitoDisplay = document.querySelector('.debito-display');
+            if (debitoDisplay && !debitoDisplay.nextElementSibling.classList.contains('btn')) {
+                debitoDisplay.after(actionsContainer);
+            }
+        } else {
+            // Se não houver dados de cartão, redirecionar para a tela de leitura
+            window.location.href = '/card-reader';
+        }
+    });
+
+    // Funções para os botões específicos
+    function confirmarPagamento() {
+        const loading = document.getElementById('loading');
+        loading.style.display = 'flex';
+
+        setTimeout(() => {
+            const cardData = JSON.parse(sessionStorage.getItem('cardData') || '{}');
+            cardData.pending = 0.00;
+            sessionStorage.setItem('cardData', JSON.stringify(cardData));
+
+            document.querySelector('.debito-value').textContent = 'R$ 0,00';
+            loading.style.display = 'none';
+
+            alert('Pagamento confirmado com sucesso!');
+        }, 1500);
+    }
+
+    function encerrarSessao() {
+        if (confirm('Deseja realmente encerrar a sessão?')) {
+            sessionStorage.removeItem('cardData');
+            window.location.href = '/card-reader';
+        }
+    }
+
+    function mudarTipo() {
+        const cardData = JSON.parse(sessionStorage.getItem('cardData') || '{}');
+
+        if (cardData.type === 'pre') {
+            if (confirm('Deseja mudar para cartão pós-pago?')) {
+                cardData.type = 'pos';
+                sessionStorage.setItem('cardData', JSON.stringify(cardData));
+                window.location.reload();
+            }
+        } else {
+            if (confirm('Deseja mudar para cartão pré-pago?')) {
+                cardData.type = 'pre';
+                sessionStorage.setItem('cardData', JSON.stringify(cardData));
+                window.location.reload();
+            }
+        }
+    }
+</script>
+</body>
+
+
 
 </html>
