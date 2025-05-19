@@ -120,6 +120,10 @@
                     <input type="text" id="client-name" placeholder="Digite o nome do cliente">
                 </div>
                 <div class="form-row">
+                    <label for="client-age">Data de Nascimento:</label>
+                    <input type="date" id="client-age" min="2007-01-01" placeholder="Digite a data de nascimento do cliente">
+                </div>
+                <div class="form-row">
                     <label for="client-email">Email:</label>
                     <input type="email" id="client-email" placeholder="Digite o email do cliente">
                 </div>
@@ -220,8 +224,9 @@
                 const email = document.getElementById('client-email').value;
                 const phone = document.getElementById('client-phone').value;
                 const cardType = document.getElementById('card-type').value;
+                const age = document.getElementById('client-age').value
                 
-                if (!name || !email || !phone) {
+                if (!name || !email || !phone || !age) {
                     alert('Por favor, preencha todos os campos!');
                     return;
                 }
@@ -229,6 +234,10 @@
                 if (!currentCardNumber) {
                     alert('Erro: Número de cartão não encontrado. Tente novamente.');
                     return;
+                }
+
+                if (!age < "01-01-2007") {
+                    alert('Erro: Cliente menor de idade.')
                 }
                 
                 // Mostrar carregamento
