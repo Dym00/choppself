@@ -5,89 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SelfChopp - Leitura de Cartão</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        .card-reader-container {
-            max-width: 500px;
-            margin: 50px auto;
-            text-align: center;
-        }
-
-        .card-reader-box {
-            background-color: var(--light);
-            border: 2px solid var(--primary);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-reader-icon {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 20px;
-            background-color: var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .card-reader-icon img {
-            width: 60px;
-            height: 60px;
-        }
-
-        .card-reader-message {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: var(--dark);
-        }
-
-        .simulation-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-
-        .card-animation {
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.05);
-                opacity: 0.8;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .card-form {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-form h3 {
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-
-        .form-row {
-            margin-bottom: 15px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/card_reader.css') }}">
 </head>
 
 <body>
@@ -95,97 +13,152 @@
         <div class="header">
             <h1>SelfChopp</h1>
         </div>
-
-        <div class="card-reader-container">
-            <div class="card-reader-box">
-                <div class="card-reader-icon card-animation">
-                    <img src="https://cdn-icons-png.flaticon.com/512/5673/5673151.png" alt="RFID Card">
+        <div class="card">
+            <div class="card-reader-container">
+                <div class="card-reader-box">
+                    <div class="card-reader-icon card-animation">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5673/5673151.png" alt="RFID Card">
+                    </div>
+                    <div class="card-reader-message">
+                        Aguardando dados do cartão...
+                    </div>
+                    <div class="simulation-buttons">
+                        <button class="btn" id="btn-simulate-inactive">Simular Cartão Inativo</button>
+                        <button class="btn" id="btn-simulate-active">Simular Cartão Ativo</button>
+                    </div>
                 </div>
-                <div class="card-reader-message">
-                    Aguardando dados do cartão...
+                
+                <!-- Formulário inicial apenas com CPF -->
+                <div class="card-form" id="cpf-check-form" style="display: none;">
+                    <h3>Verificação de Cliente</h3>
+                    <div class="form-row" id="card-number-container-cpf">
+                        <!-- Número do cartão será inserido aqui -->
+                    </div>
+                    <div class="form-row">
+                        <label for="client-cpf-check">CPF:</label>
+                        <input type="text" id="client-cpf-check" placeholder="Digite o CPF do cliente" maxlength="14">
+                    </div>
+                    <div class="form-row">
+                        <button class="btn" id="btn-check-cpf">Verificar CPF</button>
+                    </div>
                 </div>
-                <div class="simulation-buttons">
-                    <button class="btn" id="btn-simulate-inactive">Simular Cartão Inativo</button>
-                    <button class="btn" id="btn-simulate-active">Simular Cartão Ativo</button>
-                </div>
-            </div>
-
-            <div class="card-form" id="inactive-card-form">
-                <h3>Cadastro de Cliente</h3>
-                <div class="form-row" id="card-number-container">
-                    <!-- Número do cartão será inserido aqui -->
-                </div>
-                <div class="form-row">
-                    <label for="client-name">Nome:</label>
-                    <input type="text" id="client-name" placeholder="Digite o nome do cliente">
-                </div>
-                <div class="form-row">
-                    <label for="client-age">Data de Nascimento:</label>
-                    <input type="date" id="client-age" min="2007-01-01" placeholder="Digite a data de nascimento do cliente">
-                </div>
-                <div class="form-row">
-                    <label for="client-email">Email:</label>
-                    <input type="email" id="client-email" placeholder="Digite o email do cliente">
-                </div>
-                <div class="form-row">
-                    <label for="client-phone">Telefone:</label>
-                    <input type="tel" id="client-phone" placeholder="Digite o telefone do cliente">
-                </div>
-                <div class="form-row">
-                    <label for="card-type">Tipo de Cartão:</label>
-                    <select id="card-type">
-                        <option value="pre">Pré-pago</option>
-                        <option value="pos">Pós-pago</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <button class="btn" id="btn-activate-card">Ativar Cartão</button>
+                
+                <!-- Formulário completo para cadastro -->
+                <div class="card-form" id="inactive-card-form" style="display: none;">
+                    <h3>Cadastro de Cliente</h3>
+                    <div class="form-row" id="card-number-container">
+                        <!-- Número do cartão será inserido aqui -->
+                    </div>
+                    <div class="form-row">
+                        <label for="client-cpf">CPF:</label>
+                        <input type="text" id="client-cpf" placeholder="Digite o CPF do cliente" maxlength="14">
+                    </div>
+                    <div class="form-row">
+                        <label for="client-name">Nome:</label>
+                        <input type="text" id="client-name" placeholder="Digite o nome do cliente">
+                    </div>
+                    <div class="form-row">
+                        <label for="client-age">Data de Nascimento:</label>
+                        <input type="date" id="client-age" placeholder="Digite a data de nascimento do cliente">
+                    </div>
+                    <div class="form-row">
+                        <label for="client-email">Email:</label>
+                        <input type="email" id="client-email" placeholder="Digite o email do cliente">
+                    </div>
+                    <div class="form-row">
+                        <label for="client-phone">Telefone:</label>
+                        <input type="tel" id="client-phone" placeholder="Digite o telefone do cliente">
+                    </div>
+                    <div class="form-row">
+                        <label for="card-type">Tipo de Cartão:</label>
+                        <select id="card-type">
+                            <option value="pre">Pré-pago</option>
+                            <option value="pos">Pós-pago</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <button class="btn" id="btn-activate-card">Ativar Cartão</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Elemento de Carregamento Global -->
     <div id="loading" class="loading">
         <div class="spinner"></div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const btnSimulateInactive = document.getElementById('btn-simulate-inactive');
             const btnSimulateActive = document.getElementById('btn-simulate-active');
+            const cpfCheckForm = document.getElementById('cpf-check-form');
             const inactiveCardForm = document.getElementById('inactive-card-form');
+            const btnCheckCpf = document.getElementById('btn-check-cpf');
             const btnActivateCard = document.getElementById('btn-activate-card');
             const cardNumberContainer = document.getElementById('card-number-container');
+            const cardNumberContainerCpf = document.getElementById('card-number-container-cpf');
             const loading = document.getElementById('loading');
-            
+            const clientCpfCheck = document.getElementById('client-cpf-check');
+            const clientCpf = document.getElementById('client-cpf');
+
             let currentCardNumber = null;
 
-            // Simular cartão inativo
-            btnSimulateInactive.addEventListener('click', function() {
-                // Mostrar carregamento
-                loading.style.display = 'flex';
+            // Função para formatar CPF
+            function formatarCPF(cpf) {
+                cpf = cpf.replace(/\D/g, '');
+                if (cpf.length > 11) cpf = cpf.substring(0, 11);
+                if (cpf.length > 9) {
+                    cpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+                } else if (cpf.length > 6) {
+                    cpf = cpf.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+                } else if (cpf.length > 3) {
+                    cpf = cpf.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+                }
+                return cpf;
+            }
+
+            // Aplicar formatação de CPF nos campos
+            clientCpfCheck.addEventListener('input', function() {
+                this.value = formatarCPF(this.value);
+            });
+
+            clientCpf.addEventListener('input', function() {
+                this.value = formatarCPF(this.value);
+            });
+
+            // Função para validar CPF (implementação básica)
+            function validarCPF(cpf) {
+                cpf = cpf.replace(/[^\d]+/g, '');
+                if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+                return true;
+            }
+
+            // Função para validar data de nascimento (18 anos)
+            function validarIdade(dataNascimento) {
+                const hoje = new Date();
+                const nascimento = new Date(dataNascimento);
+                let idade = hoje.getFullYear() - nascimento.getFullYear();
+                const m = hoje.getMonth() - nascimento.getMonth();
                 
-                // Fazer requisição para gerar número de cartão
+                if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+                    idade--;
+                }
+                
+                return idade >= 18;
+            }
+
+            btnSimulateInactive.addEventListener('click', function() {
+                loading.style.display = 'flex';
                 fetch('/api/generate-card-number')
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Salvar número do cartão
                             currentCardNumber = data.card_number;
-                            
-                            // Mostrar formulário de cadastro
-                            inactiveCardForm.style.display = 'block';
-                            
-                            // Adicionar número do cartão ao formulário
-                            cardNumberContainer.innerHTML = `<strong>Número do Cartão: ${currentCardNumber.toString().padStart(4, '0')}</strong>`;
-                            
-                            // Esconder carregamento
-                            loading.style.display = 'none';
+                            cpfCheckForm.style.display = 'block';
+                            cardNumberContainerCpf.innerHTML = `<strong>Número do Cartão: ${currentCardNumber.toString().padStart(4, '0')}</strong>`;
                         } else {
                             alert('Erro ao gerar número de cartão. Tente novamente.');
-                            loading.style.display = 'none';
                         }
+                        loading.style.display = 'none';
                     })
                     .catch(error => {
                         console.error('Erro:', error);
@@ -194,22 +167,17 @@
                     });
             });
 
-            // Simular cartão ativo
             btnSimulateActive.addEventListener('click', function() {
-                // Mostrar carregamento
                 loading.style.display = 'flex';
-                
-                // Fazer requisição para simular cartão ativo
                 fetch('/api/simulate-active-card')
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Redirecionar para a interface principal
                             window.location.href = '/';
                         } else {
                             alert('Erro ao simular cartão ativo. Tente novamente.');
-                            loading.style.display = 'none';
                         }
+                        loading.style.display = 'none';
                     })
                     .catch(error => {
                         console.error('Erro:', error);
@@ -218,16 +186,78 @@
                     });
             });
 
-            // Ativar cartão inativo
+            // Verificar CPF
+            btnCheckCpf.addEventListener('click', function() {
+                const cpf = document.getElementById('client-cpf-check').value;
+                
+                if (!cpf) {
+                    alert('Por favor, informe o CPF do cliente.');
+                    return;
+                }
+                
+                if (!validarCPF(cpf)) {
+                    alert('CPF inválido. Por favor, verifique.');
+                    return;
+                }
+                
+                if (!currentCardNumber) {
+                    alert('Erro: Número de cartão não encontrado. Tente novamente.');
+                    return;
+                }
+                
+                loading.style.display = 'flex';
+                
+                // Verificar se o cliente já existe pelo CPF
+                fetch('/api/check-client', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cpf: cpf,
+                        card_number: currentCardNumber
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.client_exists) {
+                            // Cliente já existe, redirecionar para index
+                            window.location.href = '/';
+                        } else {
+                            // Cliente não existe, mostrar formulário completo
+                            cpfCheckForm.style.display = 'none';
+                            inactiveCardForm.style.display = 'block';
+                            cardNumberContainer.innerHTML = `<strong>Número do Cartão: ${currentCardNumber.toString().padStart(4, '0')}</strong>`;
+                            document.getElementById('client-cpf').value = cpf;
+                        }
+                    } else {
+                        alert(`Erro: ${data.message}`);
+                    }
+                    loading.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao comunicar com o servidor. Tente novamente.');
+                    loading.style.display = 'none';
+                });
+            });
+
             btnActivateCard.addEventListener('click', function() {
+                const cpf = document.getElementById('client-cpf').value;
                 const name = document.getElementById('client-name').value;
                 const email = document.getElementById('client-email').value;
                 const phone = document.getElementById('client-phone').value;
                 const cardType = document.getElementById('card-type').value;
-                const age = document.getElementById('client-age').value
+                const birthDate = document.getElementById('client-age').value;
                 
-                if (!name || !email || !phone || !age) {
+                if (!cpf || !name || !email || !phone || !birthDate) {
                     alert('Por favor, preencha todos os campos!');
+                    return;
+                }
+                
+                if (!validarCPF(cpf)) {
+                    alert('CPF inválido. Por favor, verifique.');
                     return;
                 }
                 
@@ -236,23 +266,23 @@
                     return;
                 }
 
-                if (!age < "01-01-2007") {
-                    alert('Erro: Cliente menor de idade.')
+                // Verificar se o cliente tem pelo menos 18 anos
+                if (!validarIdade(birthDate)) {
+                    alert('Erro: Cliente deve ter pelo menos 18 anos.');
+                    return;
                 }
                 
-                // Mostrar carregamento
                 loading.style.display = 'flex';
-                
-                // Preparar dados para envio
                 const cardData = {
+                    cpf: cpf,
                     name: name,
                     email: email,
                     phone: phone,
                     card_type: cardType,
-                    card_number: currentCardNumber
+                    card_number: currentCardNumber,
+                    birth_date: birthDate
                 };
-                
-                // Fazer requisição para ativar cartão
+
                 fetch('/api/activate-card', {
                     method: 'POST',
                     headers: {
@@ -263,12 +293,11 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Redirecionar para a interface principal
                         window.location.href = '/';
                     } else {
                         alert(`Erro: ${data.message}`);
-                        loading.style.display = 'none';
                     }
+                    loading.style.display = 'none';
                 })
                 .catch(error => {
                     console.error('Erro:', error);

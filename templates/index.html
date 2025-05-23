@@ -20,7 +20,6 @@
                 </div>
             </div>
         </div>
-
         <div class="card">
             <div class="tabs">
                 <div class="tab active" data-tab="inicio">Início</div>
@@ -28,26 +27,24 @@
                 <div class="tab" data-tab="cartao">Cartão de Consumo</div>
                 <div class="tab" data-tab="historico">Histórico</div>
             </div>
-
             <div class="tab-content active" id="inicio">
                 <div class="card-title">Bem-vindo ao SelfChopp</div>
-
                 <div class="user-profile-container">
                     <div class="infos_pessoais">
                         <div class="infos_content">
                             <h3>Informações Pessoais</h3>
+                            <p><strong>CPF:</strong> <span id="user-cpf">123.456.789-01</span></p>
                             <p><strong>Nome:</strong> <span id="user-name">Marcos</span></p>
-                            <p><strong>Data de Nascimento:</strong> 15/03/1985</p>
+                            <p><strong>Data de Nascimento:</strong> <span id="user-birth-date">15/03/1985</span></p>
                             <p><strong>Email:</strong> <span id="user-email">marcos@email.com</span></p>
                             <p><strong>Telefone:</strong> <span id="user-phone">(11) 98765-4321</span></p>
-                            <p><strong>Data de Cadastro:</strong> 10/01/2025</p>
+                            <p><strong>Data de Cadastro:</strong> <span id="user-register-date">10/01/2025</span></p>
                             <div class="entrada-cliente">
                                 <h4>Informações da Sessão Atual</h4>
                                 <p><strong>Entrada:</strong> <span id="data-entrada">15/05/2025 19:45</span></p>
                             </div>
                         </div>
                     </div>
-
                     <div class="rfid-card">
                         <div class="card-content">
                             <div class="card-chip"></div>
@@ -59,26 +56,20 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="saldo-display">
                     <div class="saldo-label">Saldo do Cartão</div>
                     <div class="saldo-value" id="main-saldo">R$ 50,00</div>
                 </div>
-
                 <div class="debito-display">
                     <div class="debito-label">Consumo Pendente</div>
                     <div class="debito-value" id="debito-value">R$ 0,00</div>
                 </div>
-
                 <div id="card-actions" style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                    <!-- Os botões serão adicionados dinamicamente pelo JavaScript -->
                 </div>
             </div>
-
             <div class="tab-content" id="cervejas">
                 <div class="card-title">Cervejas Disponíveis</div>
                 <div class="chopp-grid">
-                    <!-- Cervejas serão adicionadas aqui -->
                     <div class="chopp-card">
                         <div class="chopp-img">
                             <img src="https://cdn-icons-png.flaticon.com/512/2738/2738730.png" alt="Chopp Pilsen">
@@ -111,10 +102,8 @@
                     </div>
                 </div>
             </div>
-
             <div class="tab-content" id="cartao">
                 <div class="card-title">Cartão de Consumo</div>
-
                 <div class="rfid-card">
                     <div class="card-content">
                         <div class="card-chip"></div>
@@ -125,19 +114,16 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="saldo-display">
                     <div class="saldo-label">Saldo do Cartão</div>
                     <div class="saldo-value" id="card-tab-saldo">R$ 50,00</div>
                 </div>
-
                 <div style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto;">
                     <button class="btn" onclick="openRechargeModal()">Recarregar Cartão</button>
                     <button class="btn btn-outline">Transferir Saldo</button>
                     <button class="btn btn-outline">Bloquear Cartão</button>
                 </div>
             </div>
-
             <div class="tab-content" id="historico">
                 <div class="card-title">Histórico de Consumo</div>
                 <div class="history-list">
@@ -158,14 +144,12 @@
                 </div>
             </div>
         </div>
-        <!-- Modal de Recarga -->
         <div id="recharge-modal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Recarregar Cartão</h2>
                     <span class="close-modal" onclick="closeRechargeModal()">&times;</span>
                 </div>
-
                 <div class="flow-steps">
                     <div class="step active">
                         <div class="step-number">1</div>
@@ -180,7 +164,6 @@
                         <div class="step-label">Confirmação</div>
                     </div>
                 </div>
-
                 <div id="step-valor" class="recharge-step active">
                     <div class="form-group">
                         <label for="recharge-amount">Selecione o valor de recarga:</label>
@@ -203,29 +186,25 @@
                         <button class="btn" onclick="nextStep(2)" id="btn-next-step">Próximo</button>
                     </div>
                 </div>
-
                 <div id="step-pagamento" class="recharge-step">
                     <div class="form-group">
                         <label>Selecione o método de pagamento:</label>
                         <div class="payment-methods">
                             <div class="payment-method" data-method="pix">
                                 <div class="payment-icon">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/6124/6124998.png" alt="PIX"
-                                        width="50">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/6124/6124998.png" alt="PIX" width="50">
                                 </div>
                                 <div>PIX</div>
                             </div>
                             <div class="payment-method" data-method="credit">
                                 <div class="payment-icon">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/6963/6963703.png"
-                                        alt="Cartão de Crédito" width="50">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/6963/6963703.png" alt="Cartão de Crédito" width="50">
                                 </div>
                                 <div>Cartão de Crédito</div>
                             </div>
                             <div class="payment-method" data-method="debit">
                                 <div class="payment-icon">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/4021/4021708.png"
-                                        alt="Cartão de Débito" width="50">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4021/4021708.png" alt="Cartão de Débito" width="50">
                                 </div>
                                 <div>Cartão de Débito</div>
                             </div>
@@ -236,8 +215,7 @@
                         <button class="btn" onclick="nextStep(3)" id="btn-payment-next" disabled>Próximo</button>
                     </div>
                 </div>
-
-                                <div id="step-confirmacao" class="recharge-step">
+                <div id="step-confirmacao" class="recharge-step">
                     <div class="confirmation-details">
                         <h3>Confirmar Recarga</h3>
                         <div class="confirmation-item">
@@ -258,7 +236,6 @@
                         <button class="btn btn-success" onclick="confirmRecharge()">Confirmar Pagamento</button>
                     </div>
                 </div>
-
                 <div id="processing-payment" class="recharge-step">
                     <div class="processing-container">
                         <div class="spinner"></div>
@@ -266,7 +243,6 @@
                         <p>Por favor, aguarde.</p>
                     </div>
                 </div>
-
                 <div id="payment-success" class="recharge-step">
                     <div class="success-container">
                         <div class="success-icon">✓</div>
@@ -281,37 +257,25 @@
                 </div>
             </div>
         </div>
-
-        <!-- Elemento de Carregamento Global -->
         <div id="loading" class="loading">
             <div class="spinner"></div>
         </div>
     </div>
-
     <script>
-        // Variáveis globais
         let selectedAmount = 0;
         let selectedPaymentMethod = '';
         let currentStep = 1;
         let cardData = null;
 
-        // Carregar dados do cartão ao iniciar
         document.addEventListener('DOMContentLoaded', function() {
-            // Carregar dados do cartão
             loadCardData();
-            
-            // Configurar tabs
             setupTabs();
-            
-            // Configurar modal de recarga
             setupRechargeModal();
         });
 
-        // Função para carregar dados do cartão
         function loadCardData() {
             const loading = document.getElementById('loading');
             loading.style.display = 'flex';
-            
             fetch('/api/card-data')
                 .then(response => response.json())
                 .then(result => {
@@ -331,34 +295,43 @@
                 });
         }
 
-        // Função para atualizar a interface com os dados do cartão
         function updateUIWithCardData(data) {
-            // Atualizar avatar e nome
             if (data.name) {
                 document.getElementById('user-avatar').textContent = data.name.charAt(0);
                 document.getElementById('user-name').textContent = data.name;
             }
             
-            // Atualizar email e telefone
+            // Atualizar CPF
+            if (data.cpf) {
+                // Formatar CPF: XXX.XXX.XXX-XX
+                const cpfFormatado = data.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+                document.getElementById('user-cpf').textContent = cpfFormatado;
+            }
+            
+            // Atualizar data de nascimento
+            if (data.birth_date) {
+                const birthDate = new Date(data.birth_date);
+                const dia = String(birthDate.getDate()).padStart(2, '0');
+                const mes = String(birthDate.getMonth() + 1).padStart(2, '0');
+                const ano = birthDate.getFullYear();
+                document.getElementById('user-birth-date').textContent = `${dia}/${mes}/${ano}`;
+            }
+            
             if (data.email) document.getElementById('user-email').textContent = data.email;
             if (data.phone) document.getElementById('user-phone').textContent = data.phone;
-            
-            // Atualizar número do cartão
+
             const cardNumberElements = document.querySelectorAll('.card-number');
             cardNumberElements.forEach(el => {
                 el.textContent = `Cartão Nº ${data.id}`;
             });
-            
-            // Atualizar saldo
+
             const saldoElements = document.querySelectorAll('.saldo-value');
             saldoElements.forEach(el => {
                 el.textContent = `R$ ${data.balance.toFixed(2).replace('.', ',')}`;
             });
-            
-            // Atualizar débito
+
             document.getElementById('debito-value').textContent = `R$ ${data.pending.toFixed(2).replace('.', ',')}`;
-            
-            // Atualizar data de entrada
+
             if (data.entry_date) {
                 const date = new Date(data.entry_date);
                 const dia = String(date.getDate()).padStart(2, '0');
@@ -366,40 +339,40 @@
                 const ano = date.getFullYear();
                 const horas = String(date.getHours()).padStart(2, '0');
                 const minutos = String(date.getMinutes()).padStart(2, '0');
-                
                 const dataFormatada = `${dia}/${mes}/${ano} ${horas}:${minutos}`;
                 document.getElementById('data-entrada').textContent = dataFormatada;
             }
             
-            // Configurar botões com base no tipo de cartão
+            // Adicionar data de cadastro (usando a data atual como exemplo)
+            const today = new Date();
+            const dia = String(today.getDate()).padStart(2, '0');
+            const mes = String(today.getMonth() + 1).padStart(2, '0');
+            const ano = today.getFullYear();
+            document.getElementById('user-register-date').textContent = `${dia}/${mes}/${ano}`;
+
             updateCardActions(data.type);
         }
 
-        // Função para atualizar botões com base no tipo de cartão
         function updateCardActions(cardType) {
             const actionsContainer = document.getElementById('card-actions');
             actionsContainer.innerHTML = '';
-            
             if (cardType === 'pre') {
-                // Botões para cartão pré-pago
                 actionsContainer.innerHTML = `
-                    <button class="btn" onclick="openRechargeModal()">Recarregar Cartão</button>
-                    <button class="btn btn-outline" onclick="changeTab('cervejas')">Ver Cervejas</button>
-                    <button class="btn btn-outline" onclick="encerrarSessao()">Encerrar</button>
-                    <button class="btn btn-outline" onclick="mudarTipo()">Mudar Tipo</button>
+                <button class="btn" onclick="openRechargeModal()">Recarregar Cartão</button>
+                <button class="btn btn-outline" onclick="changeTab('cervejas')">Ver Cervejas</button>
+                <button class="btn btn-outline" onclick="encerrarSessao()">Encerrar</button>
+                <button class="btn btn-outline" onclick="mudarTipo()">Mudar Tipo</button>
                 `;
             } else {
-                // Botões para cartão pós-pago
                 actionsContainer.innerHTML = `
-                    <button class="btn" onclick="confirmarPagamento()">Confirmar Pagamento</button>
-                    <button class="btn btn-outline" onclick="changeTab('cervejas')">Ver Cervejas</button>
-                    <button class="btn btn-outline" onclick="encerrarSessao()">Encerrar</button>
-                    <button class="btn btn-outline" onclick="mudarTipo()">Mudar Tipo</button>
+                <button class="btn" onclick="confirmarPagamento()">Confirmar Pagamento</button>
+                <button class="btn btn-outline" onclick="changeTab('cervejas')">Ver Cervejas</button>
+                <button class="btn btn-outline" onclick="encerrarSessao()">Encerrar</button>
+                <button class="btn btn-outline" onclick="mudarTipo()">Mudar Tipo</button>
                 `;
             }
         }
 
-        // Configurar tabs
         function setupTabs() {
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -409,72 +382,47 @@
             });
         }
 
-        // Função para alternar entre abas
         function changeTab(tabName) {
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            
             document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
             document.getElementById(tabName).classList.add('active');
         }
 
-        // Configurar modal de recarga
         function setupRechargeModal() {
-            // Event listener para opções de valor
             document.querySelectorAll('.amount-option').forEach(option => {
                 option.addEventListener('click', function() {
-                    // Remover seleção anterior
                     document.querySelectorAll('.amount-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
-                    
-                    // Adicionar nova seleção
                     this.classList.add('selected');
-                    
-                    // Atualizar valor selecionado
                     selectedAmount = parseFloat(this.getAttribute('data-value'));
-                    
-                    // Limpar campo de valor personalizado
                     document.getElementById('custom-value').value = '';
                 });
             });
-            
-            // Event listener para valor personalizado
+
             document.getElementById('custom-value').addEventListener('input', function() {
-                // Remover seleção de qualquer opção predefinida
                 document.querySelectorAll('.amount-option').forEach(opt => {
                     opt.classList.remove('selected');
                 });
-                
-                // Atualizar valor selecionado
                 selectedAmount = parseFloat(this.value) || 0;
             });
-            
-            // Event listener para métodos de pagamento
+
             document.querySelectorAll('.payment-method').forEach(method => {
                 method.addEventListener('click', function() {
-                    // Remover seleção anterior
                     document.querySelectorAll('.payment-method').forEach(m => {
                         m.classList.remove('selected');
                     });
-                    
-                    // Adicionar nova seleção
                     this.classList.add('selected');
-                    
-                    // Atualizar método selecionado
                     selectedPaymentMethod = this.getAttribute('data-method');
-                    
-                    // Habilitar botão de próximo
                     document.getElementById('btn-payment-next').disabled = false;
                 });
             });
-            
-            // Fechar o modal quando clicar fora do conteúdo
+
             window.addEventListener('click', function(event) {
                 const modal = document.getElementById('recharge-modal');
                 if (event.target === modal) {
@@ -483,90 +431,63 @@
             });
         }
 
-        // Função para abrir o modal de recarga
         function openRechargeModal() {
             document.getElementById('recharge-modal').classList.add('active');
             resetModalState();
         }
 
-        // Função para fechar o modal de recarga
         function closeRechargeModal() {
             document.getElementById('recharge-modal').classList.remove('active');
         }
 
-        // Função para resetar o estado do modal
         function resetModalState() {
-            // Resetar variáveis
             selectedAmount = 0;
             selectedPaymentMethod = '';
             currentStep = 1;
-            
-            // Resetar UI
             document.querySelectorAll('.amount-option').forEach(option => {
                 option.classList.remove('selected');
             });
-            
             document.querySelectorAll('.payment-method').forEach(method => {
                 method.classList.remove('selected');
             });
-            
             document.getElementById('custom-value').value = '';
-            
-            // Mostrar o primeiro passo
             document.querySelectorAll('.recharge-step').forEach(step => {
                 step.classList.remove('active');
             });
             document.getElementById('step-valor').classList.add('active');
-            
-            // Resetar os indicadores de passos
             document.querySelectorAll('.step').forEach(step => {
                 step.classList.remove('active');
                 step.classList.remove('completed');
             });
             document.querySelectorAll('.step')[0].classList.add('active');
-            
-            // Desabilitar botão de próximo passo do pagamento
             document.getElementById('btn-payment-next').disabled = true;
         }
 
-        // Função para avançar para o próximo passo
         function nextStep(step) {
-            // Validações antes de avançar
             if (step === 2) {
-                // Verificar se um valor foi selecionado
                 if (selectedAmount <= 0) {
                     alert('Por favor, selecione um valor para recarga.');
                     return;
                 }
             }
-            
-            // Atualizar o passo atual
             currentStep = step;
-            
-            // Atualizar a UI dos passos
             document.querySelectorAll('.step').forEach((stepEl, index) => {
                 stepEl.classList.remove('active');
-                
                 if (index + 1 < step) {
                     stepEl.classList.add('completed');
                 } else if (index + 1 === step) {
                     stepEl.classList.add('active');
                 }
             });
-            
-            // Esconder todos os passos e mostrar o atual
             document.querySelectorAll('.recharge-step').forEach(stepContent => {
                 stepContent.classList.remove('active');
             });
-            
             if (step === 2) {
                 document.getElementById('step-pagamento').classList.add('active');
             } else if (step === 3) {
-                // Atualizar os valores de confirmação
                 document.getElementById('confirm-value').textContent = `R$ ${selectedAmount.toFixed(2).replace('.', ',')}`;
-                
                 let methodText = '';
-                switch(selectedPaymentMethod) {
+                switch (selectedPaymentMethod) {
                     case 'pix':
                         methodText = 'PIX';
                         break;
@@ -577,157 +498,136 @@
                         methodText = 'Cartão de Débito';
                         break;
                 }
-                
                 document.getElementById('confirm-method').textContent = methodText;
                 document.getElementById('confirm-total').textContent = `R$ ${selectedAmount.toFixed(2).replace('.', ',')}`;
-                
                 document.getElementById('step-confirmacao').classList.add('active');
             }
         }
 
-        // Função para voltar ao passo anterior
         function prevStep(step) {
-            nextStep(step); // Reutilizamos a mesma função, apenas mudando o valor do passo
+            nextStep(step);
         }
 
-        // Função para confirmar o pagamento e finalizar a recarga
         function confirmRecharge() {
-            // Mostrar tela de processamento
             document.querySelectorAll('.recharge-step').forEach(step => {
                 step.classList.remove('active');
             });
             document.getElementById('processing-payment').classList.add('active');
-            
-            // Enviar requisição para recarregar cartão
             fetch('/api/recharge-card', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ amount: selectedAmount })
+                body: JSON.stringify({
+                    amount: selectedAmount
+                })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Atualizar o novo saldo no modal de sucesso
-                    document.getElementById('new-balance-value').textContent = `R$ ${data.new_balance.toFixed(2).replace('.', ',')}`;
-                    
-                    // Atualizar o saldo em todos os lugares da UI
-                    const saldoElements = document.querySelectorAll('.saldo-value');
-                    saldoElements.forEach(el => {
-                        el.textContent = `R$ ${data.new_balance.toFixed(2).replace('.', ',')}`;
-                    });
-                    
-                    // Mostrar tela de sucesso
-                    document.querySelectorAll('.recharge-step').forEach(step => {
-                        step.classList.remove('active');
-                    });
-                    document.getElementById('payment-success').classList.add('active');
-                    
-                    // Atualizar dados do cartão
-                    cardData.balance = data.new_balance;
-                } else {
-                    alert(`Erro: ${data.message}`);
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('new-balance-value').textContent = `R$ ${data.new_balance.toFixed(2).replace('.', ',')}`;
+                        const saldoElements = document.querySelectorAll('.saldo-value');
+                        saldoElements.forEach(el => {
+                            el.textContent = `R$ ${data.new_balance.toFixed(2).replace('.', ',')}`;
+                        });
+                        document.querySelectorAll('.recharge-step').forEach(step => {
+                            step.classList.remove('active');
+                        });
+                        document.getElementById('payment-success').classList.add('active');
+                        cardData.balance = data.new_balance;
+                    } else {
+                        alert(`Erro: ${data.message}`);
+                        closeRechargeModal();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao processar pagamento. Tente novamente.');
                     closeRechargeModal();
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao processar pagamento. Tente novamente.');
-                closeRechargeModal();
-            });
+                });
         }
 
-        // Função para confirmar pagamento (cartões pós-pagos)
         function confirmarPagamento() {
             const loading = document.getElementById('loading');
             loading.style.display = 'flex';
-            
             fetch('/api/confirm-payment', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Atualizar UI
-                    document.getElementById('debito-value').textContent = 'R$ 0,00';
-                    cardData.pending = 0.00;
-                    
-                    alert('Pagamento confirmado com sucesso!');
-                } else {
-                    alert(`Erro: ${data.message}`);
-                }
-                loading.style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao confirmar pagamento. Tente novamente.');
-                loading.style.display = 'none';
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('debito-value').textContent = 'R$ 0,00';
+                        cardData.pending = 0.00;
+                        alert('Pagamento confirmado com sucesso!');
+                    } else {
+                        alert(`Erro: ${data.message}`);
+                    }
+                    loading.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao confirmar pagamento. Tente novamente.');
+                    loading.style.display = 'none';
+                });
         }
 
-        // Função para encerrar sessão
         function encerrarSessao() {
             if (confirm('Deseja realmente encerrar a sessão?')) {
                 const loading = document.getElementById('loading');
                 loading.style.display = 'flex';
-                
                 fetch('/api/end-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = '/card-reader';
-                    } else {
-                        alert(`Erro: ${data.message}`);
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = '/card-reader';
+                        } else {
+                            alert(`Erro: ${data.message}`);
+                            loading.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao encerrar sessão. Tente novamente.');
                         loading.style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao encerrar sessão. Tente novamente.');
-                    loading.style.display = 'none';
-                });
+                    });
             }
         }
 
-        // Função para mudar tipo de cartão
         function mudarTipo() {
             const novoTipo = cardData.type === 'pre' ? 'pós-pago' : 'pré-pago';
-            
             if (confirm(`Deseja mudar para cartão ${novoTipo}?`)) {
                 const loading = document.getElementById('loading');
                 loading.style.display = 'flex';
-                
                 fetch('/api/change-card-type', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        cardData.type = data.new_type;
-                        updateCardActions(data.new_type);
-                        alert(`Tipo de cartão alterado para ${novoTipo} com sucesso!`);
-                    } else {
-                        alert(`Erro: ${data.message}`);
-                    }
-                    loading.style.display = 'none';
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao mudar tipo de cartão. Tente novamente.');
-                    loading.style.display = 'none';
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            cardData.type = data.new_type;
+                            updateCardActions(data.new_type);
+                            alert(`Tipo de cartão alterado para ${novoTipo} com sucesso!`);
+                        } else {
+                            alert(`Erro: ${data.message}`);
+                        }
+                        loading.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Erro:', error);
+                        alert('Erro ao mudar tipo de cartão. Tente novamente.');
+                        loading.style.display = 'none';
+                    });
             }
         }
     </script>
