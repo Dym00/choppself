@@ -12,7 +12,7 @@ app.secret_key = os.urandom(24)
 # --- Configurações do Banco de Dados para SQL Server (Autenticação Windows) ---
 # ATENÇÃO: Substitua 'ODBC+Driver+18+for+SQL+Server' pelo nome do driver ODBC instalado no seu sistema.
 # E certifique-se que 'ATRIUM-AP002\SQLEXPRESS' e 'chopperia' estão corretos.
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mssql+pyodbc://ATRIUM-AP002\SQLEXPRESS/chopperia?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&TrustServerCertificate=yes'
+app.config['SQLALCHEMY_DATABASE_URI'] = r'mssql+pyodbc://ATRIUM-AP002\SQLEXPRESS/chopperia?driver=ODBC+Driver+18+for+SQL+Server&trusted_connection=yes&TrustServerCertificate=yes'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
