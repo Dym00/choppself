@@ -5,7 +5,7 @@ let selectedPaymentMethod = '';
 let currentStep = 1;
 let cardData = null; // Variável global para armazenar os dados do cartão
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadCardData();
     setupTabs();
     setupRechargeModal();
@@ -107,7 +107,24 @@ function updateUIWithCardData(data) {
     } else {
         document.getElementById('data-entrada').textContent = 'Não registrada';
     }
-    
+
+    const cardTypeDisplay1 = document.getElementById('card-type-display-1');
+    const cardTypeDisplay2 = document.getElementById('card-type-display-2');
+    let cardTypeText = '';
+
+    if (data.type === 'pre') {
+        cardTypeText = 'Pré-pago';
+    } else if (data.type === 'pos') {
+        cardTypeText = 'Pós-pago';
+    }
+
+    if (cardTypeDisplay1) {
+        cardTypeDisplay1.textContent = cardTypeText;
+    }
+    if (cardTypeDisplay2) {
+        cardTypeDisplay2.textContent = cardTypeText;
+    }
+
     // Atualizar ações do cartão com base no tipo
     updateCardActions(data.type);
 }
@@ -136,7 +153,7 @@ function updateCardActions(cardType) {
 
 function setupTabs() {
     document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', function () {
             const tabName = this.getAttribute('data-tab');
             changeTab(tabName);
         });
@@ -156,7 +173,7 @@ function changeTab(tabName) {
 
 function setupRechargeModal() {
     document.querySelectorAll('.amount-option').forEach(option => {
-        option.addEventListener('click', function() {
+        option.addEventListener('click', function () {
             document.querySelectorAll('.amount-option').forEach(opt => {
                 opt.classList.remove('selected');
             });
@@ -166,7 +183,7 @@ function setupRechargeModal() {
         });
     });
 
-    document.getElementById('custom-value').addEventListener('input', function() {
+    document.getElementById('custom-value').addEventListener('input', function () {
         document.querySelectorAll('.amount-option').forEach(opt => {
             opt.classList.remove('selected');
         });
@@ -174,7 +191,7 @@ function setupRechargeModal() {
     });
 
     document.querySelectorAll('.payment-method').forEach(method => {
-        method.addEventListener('click', function() {
+        method.addEventListener('click', function () {
             document.querySelectorAll('.payment-method').forEach(m => {
                 m.classList.remove('selected');
             });
@@ -184,7 +201,7 @@ function setupRechargeModal() {
         });
     });
 
-    window.addEventListener('click', function(event) {
+    window.addEventListener('click', function (event) {
         const modal = document.getElementById('recharge-modal');
         if (event.target === modal) {
             closeRechargeModal();
@@ -383,7 +400,8 @@ function mudarTipo() {
             .then(data => {
                 if (data.success) {
                     cardData.type = data.new_type;
-                    updateCardActions(cardData.type);
+                    updateUIWithCardData(cardData);
+
                     alert(`Tipo de cartão alterado para ${novoTipoDisplay} com sucesso!`);
                 } else {
                     alert(`Erro: ${data.message}`);

@@ -51,6 +51,22 @@ body {
     color: var(--primary);
 }
 
+.card-type {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--secondary);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-number {
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    /* Reduzi a margem inferior para dar espaço ao novo campo */
+    margin-bottom: 5px; 
+}
+
 .btn {
     background-color: var(--primary);
     color: white;
