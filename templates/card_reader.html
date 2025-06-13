@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- O título é renderizado pelo Flask, mas deixamos um padrão -->
-    <title>SelfChopp - Leitura de Cartão</title> 
+    <title>SelfChopp - Leitura de Cartão</title>
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,11 +36,6 @@
 
     <style>
         .hidden-state { display: none; }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-        }
-        .animate-pulse-custom { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         .form-input {
             background-color: #FFFFFF;
             border: 1px solid #D1D5DB;
@@ -51,36 +45,9 @@
              box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.3);
              outline: none;
         }
-        /* Estilo para o overlay de loading */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .spinner {
-            border: 5px solid rgba(0, 0, 0, 0.1);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border-left-color: #8B4513; /* primary */
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 font-sans">
-
-    <!-- Overlay de Loading -->
-    <div id="loading" class="loading-overlay hidden-state">
-        <div class="spinner"></div>
-    </div>
 
     <div class="w-full max-w-lg">
         <header class="bg-primary text-white p-4 rounded-t-xl shadow-lg text-center">
@@ -89,16 +56,11 @@
 
         <main id="card-container" class="bg-white rounded-b-xl shadow-lg p-6 sm:p-8 transition-all duration-500">
 
-            <!-- Estado 1: Aguardando Leitura -->
+            <!-- Estado 1: Aguardando Simulação -->
             <div id="state-waiting">
                 <div class="text-center">
-                    <div class="flex justify-center mb-6">
-                         <svg class="w-20 h-20 text-primary animate-pulse-custom" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5l.415-.207a.75.75 0 011.085.67V10.5m0 0h6m-6 0a.75.75 0 001.085.67l.415-.207M3 16.5V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v9a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 16.5z" />
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-semibold text-dark mb-2">Aproxime o cartão do leitor</h2>
-                    <p class="text-gray-600">Ou utilize a simulação abaixo.</p>
+                    <h2 class="text-2xl font-bold text-dark mb-2">Simulação de Leitura</h2>
+                    <p class="text-gray-600">Selecione uma das opções abaixo para continuar.</p>
                 </div>
                 <div class="mt-8 pt-6 border-t border-gray-200">
                     <div class="flex flex-col sm:flex-row gap-4">
@@ -118,7 +80,7 @@
                     <h3 class="text-2xl font-bold text-primary">Verificar Cliente</h3>
                     <button class="cancel-button text-gray-400 hover:text-danger text-3xl font-bold">&times;</button>
                 </div>
-                 <p class="text-gray-600 mb-6">Cartão <strong id="card-number-cpf" class="text-dark"></strong> detectado. Por favor, confirme o CPF do cliente.</p>
+                 <p class="text-gray-600 mb-6">Cartão <strong id="card-number-cpf" class="text-dark"></strong>. Por favor, confirme o CPF do cliente.</p>
                 <form id="form-check-cpf">
                     <div class="mb-4">
                         <label for="client-cpf-check" class="block text-sm font-medium text-dark mb-2">CPF do Cliente</label>
@@ -174,7 +136,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Elementos da UI ---
-            const loadingOverlay = document.getElementById('loading');
             const states = {
                 waiting: document.getElementById('state-waiting'),
                 cpfCheck: document.getElementById('state-cpf-check'),
@@ -205,7 +166,6 @@
             let currentCardNumber = null;
 
             // --- Funções de UI e Helpers ---
-            const showLoading = (show) => loadingOverlay.classList.toggle('hidden-state', !show);
             const showState = (stateToShow) => allStates.forEach(s => s.classList.toggle('hidden-state', s !== stateToShow));
             
             function resetToWaitingState() {
@@ -224,103 +184,54 @@
             applyMask(inputsActivate.cpf, cpfMask);
             applyMask(inputsActivate.phone, phoneMask);
 
-            /**
-             * Função segura para fazer requisições fetch com timeout e melhor handling de erros.
-             * @param {string} url - A URL da API.
-             * @param {object} options - Opções do fetch (method, headers, body).
-             * @param {number} timeout - Tempo de espera em milissegundos.
-             */
-            async function safeFetch(url, options = {}, timeout = 10000) {
-                console.log(`[safeFetch] Iniciando: ${options.method || 'GET'} para ${url}`);
-                const controller = new AbortController();
-                const id = setTimeout(() => controller.abort(), timeout);
-
-                try {
-                    const response = await fetch(url, {
-                        ...options,
-                        signal: controller.signal
-                    });
-
-                    // Limpa o timeout se a resposta chegar a tempo
-                    clearTimeout(id);
-
-                    // Verifica se a resposta do servidor foi um erro (ex: 404, 500)
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error(`[safeFetch] Erro de Servidor ${response.status}:`, errorText);
-                        throw new Error(`Erro no servidor: ${response.status}`);
-                    }
-
-                    // Se a resposta for OK mas vazia (204 No Content)
-                    if (response.status === 204) {
-                        return { success: true };
-                    }
-                    
-                    const data = await response.json();
-                    console.log('[safeFetch] Sucesso:', data);
-                    return data;
-
-                } catch (error) {
-                    clearTimeout(id);
-                    if (error.name === 'AbortError') {
-                        throw new Error('A requisição demorou muito. Verifique o servidor.');
-                    }
-                    // Propaga outros erros (de rede, JSON inválido, etc)
-                    throw error;
-                }
-            }
-
-
             // --- Lógica de Negócio e API ---
 
-            btnSimulateInactive.addEventListener('click', async () => {
-                showLoading(true);
-                try {
-                    const data = await safeFetch('/api/generate-card-number');
-                    if (data.success) {
-                        currentCardNumber = data.card_number;
-                        cardNumberCpfSpan.textContent = currentCardNumber.toString().padStart(4, '0');
-                        showState(states.cpfCheck);
-                    } else {
-                        alert(`Erro: ${data.message || 'Não foi possível gerar um número de cartão.'}`);
-                    }
-                } catch (error) {
-                    alert(`Falha na comunicação: ${error.message}`);
-                } finally {
-                    showLoading(false);
-                }
+            btnSimulateInactive.addEventListener('click', () => {
+                fetch('/api/generate-card-number')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            currentCardNumber = data.card_number;
+                            cardNumberCpfSpan.textContent = currentCardNumber.toString().padStart(4, '0');
+                            showState(states.cpfCheck);
+                        } else {
+                            alert(`Erro: ${data.message || 'Não foi possível gerar um número de cartão.'}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro em /api/generate-card-number:', error);
+                        alert('Erro de comunicação com o servidor.');
+                    });
             });
 
-            btnSimulateActive.addEventListener('click', async () => {
-                showLoading(true);
-                try {
-                    const data = await safeFetch('/api/simulate-active-card');
-                    if (data.success) {
-                        window.location.href = '/';
-                    } else {
-                        alert(`Erro: ${data.message || 'Não foi possível simular o cartão.'}`);
-                    }
-                } catch (error) {
-                    alert(`Falha na comunicação: ${error.message}`);
-                } finally {
-                    showLoading(false);
-                }
+            btnSimulateActive.addEventListener('click', () => {
+                fetch('/api/simulate-active-card')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = '/';
+                        } else {
+                            alert(`Erro: ${data.message || 'Não foi possível simular o cartão.'}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro em /api/simulate-active-card:', error);
+                        alert('Erro de comunicação com o servidor.');
+                    });
             });
 
-            formCheckCpf.addEventListener('submit', async (e) => {
+            formCheckCpf.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const cpf = inputCpfCheck.value;
                 if (!cpf) return alert('Por favor, informe o CPF.');
 
-                showLoading(true);
-                try {
-                    const options = {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ cpf: cpf })
-                    };
-                    const data = await safeFetch('/api/check-client', options);
-                    
+                fetch('/api/check-client', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ cpf: cpf })
+                })
+                .then(response => response.json())
+                .then(data => {
                     if (data.success) {
                         if (data.client_exists) {
                             window.location.href = '/';
@@ -332,14 +243,14 @@
                     } else {
                         alert(`Erro: ${data.message}`);
                     }
-                } catch (error) {
-                    alert(`Falha na comunicação: ${error.message}`);
-                } finally {
-                    showLoading(false);
-                }
+                })
+                .catch(error => {
+                     console.error('Erro em /api/check-client:', error);
+                     alert('Erro de comunicação com o servidor.');
+                });
             });
 
-            formActivateCard.addEventListener('submit', async (e) => {
+            formActivateCard.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const formData = {
                     cpf: inputsActivate.cpf.value,
@@ -351,26 +262,24 @@
                     card_number: currentCardNumber,
                 };
                 
-                showLoading(true);
-                try {
-                     const options = {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(formData)
-                    };
-                    const data = await safeFetch('/api/activate-card', options);
-
+                fetch('/api/activate-card', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
                     if (data.success) {
                         alert('Cartão ativado com sucesso!');
                         window.location.href = '/';
                     } else {
                         alert(`Erro: ${data.message}`);
                     }
-                } catch (error) {
-                    alert(`Falha na comunicação: ${error.message}`);
-                } finally {
-                    showLoading(false);
-                }
+                })
+                .catch(error => {
+                    console.error('Erro em /api/activate-card:', error);
+                    alert('Erro de comunicação com o servidor.');
+                });
             });
 
             cancelButtons.forEach(btn => btn.addEventListener('click', resetToWaitingState));
