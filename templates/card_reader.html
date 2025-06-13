@@ -1,88 +1,381 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SelfChopp - Leitura de Cartão</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/card_reader.css') }}">
+    <!-- O título é renderizado pelo Flask, mas deixamos um padrão -->
+    <title>SelfChopp - Leitura de Cartão</title> 
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        // Configuração customizada do Tailwind para usar a paleta de cores original
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B4513', // Marrom principal
+                        secondary: '#D2B48C', // Tan/Bege
+                        light: '#F5DEB3', // Trigo/Creme
+                        dark: '#2E1C0C', // Marrom escuro (para texto)
+                        success: '#4CAF50', // Verde
+                        danger: '#F44336', // Vermelho
+                    }
+                },
+                fontFamily: {
+                  sans: ['Inter', 'sans-serif'],
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .hidden-state { display: none; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        .animate-pulse-custom { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .form-input {
+            background-color: #FFFFFF;
+            border: 1px solid #D1D5DB;
+        }
+        .form-input:focus {
+             border-color: #8B4513;
+             box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.3);
+             outline: none;
+        }
+        /* Estilo para o overlay de loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .spinner {
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-left-color: #8B4513; /* primary */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 font-sans">
 
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>SelfChopp</h1>
-        </div>
-        <div class="card">
-            <div class="card-reader-container">
-                <div class="card-reader-box">
-                    <div class="card-reader-icon card-animation">
-                        <img src="https://cdn-icons-png.flaticon.com/512/5673/5673151.png" alt="RFID Card">
+    <!-- Overlay de Loading -->
+    <div id="loading" class="loading-overlay hidden-state">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="w-full max-w-lg">
+        <header class="bg-primary text-white p-4 rounded-t-xl shadow-lg text-center">
+            <h1 class="text-3xl font-bold">SelfChopp</h1>
+        </header>
+
+        <main id="card-container" class="bg-white rounded-b-xl shadow-lg p-6 sm:p-8 transition-all duration-500">
+
+            <!-- Estado 1: Aguardando Leitura -->
+            <div id="state-waiting">
+                <div class="text-center">
+                    <div class="flex justify-center mb-6">
+                         <svg class="w-20 h-20 text-primary animate-pulse-custom" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5l.415-.207a.75.75 0 011.085.67V10.5m0 0h6m-6 0a.75.75 0 001.085.67l.415-.207M3 16.5V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v9a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 16.5z" />
+                        </svg>
                     </div>
-                    <div class="card-reader-message">
-                        Aguardando dados do cartão...
-                    </div>
-                    <div class="simulation-buttons">
-                        <button class="btn" id="btn-simulate-inactive">Simular Cartão Inativo</button>
-                        <button class="btn" id="btn-simulate-active">Simular Cartão Ativo</button>
+                    <h2 class="text-xl font-semibold text-dark mb-2">Aproxime o cartão do leitor</h2>
+                    <p class="text-gray-600">Ou utilize a simulação abaixo.</p>
+                </div>
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="btn-simulate-inactive" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
+                            Simular Cartão Inativo
+                        </button>
+                        <button id="btn-simulate-active" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">
+                            Simular Cartão Ativo
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <div class="card-form" id="cpf-check-form" style="display: none;">
-                    <h3>Verificação de Cliente</h3>
-                    <div class="form-row" id="card-number-container-cpf">
-                        </div>
-                    <div class="form-row">
-                        <label for="client-cpf-check">CPF:</label>
-                        <input type="text" id="client-cpf-check" placeholder="Digite o CPF do cliente" maxlength="14">
-                    </div>
-                    <div class="form-row">
-                        <button class="btn" id="btn-check-cpf">Verificar CPF</button>
-                    </div>
+            <!-- Estado 2: Verificação de CPF -->
+            <div id="state-cpf-check" class="hidden-state">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-primary">Verificar Cliente</h3>
+                    <button class="cancel-button text-gray-400 hover:text-danger text-3xl font-bold">&times;</button>
                 </div>
+                 <p class="text-gray-600 mb-6">Cartão <strong id="card-number-cpf" class="text-dark"></strong> detectado. Por favor, confirme o CPF do cliente.</p>
+                <form id="form-check-cpf">
+                    <div class="mb-4">
+                        <label for="client-cpf-check" class="block text-sm font-medium text-dark mb-2">CPF do Cliente</label>
+                        <input type="text" id="client-cpf-check" placeholder="000.000.000-00" class="w-full text-dark rounded-lg p-3 form-input">
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:opacity-90 text-white font-bold py-3 px-4 rounded-lg transition-opacity duration-300">Verificar CPF</button>
+                </form>
+            </div>
 
-                <div class="card-form" id="inactive-card-form" style="display: none;">
-                    <h3>Cadastro de Cliente</h3>
-                    <div class="form-row" id="card-number-container">
-                        </div>
-                    <div class="form-row">
-                        <label for="client-cpf">CPF:</label>
-                        <input type="text" id="client-cpf" placeholder="Digite o CPF do cliente" maxlength="14">
+            <!-- Estado 3: Cadastro -->
+            <div id="state-inactive-card" class="hidden-state">
+                 <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-primary">Ativar Novo Cartão</h3>
+                     <button class="cancel-button text-gray-400 hover:text-danger text-3xl font-bold">&times;</button>
+                </div>
+                <p class="text-gray-600 mb-6">O cartão <strong id="card-number-new" class="text-dark"></strong> é novo. Preencha os dados para ativá-lo.</p>
+                <form id="form-activate-card" class="space-y-4">
+                    <div>
+                        <label for="client-birth-date" class="block text-sm font-medium text-dark mb-2">Data de Nascimento</label>
+                        <input type="date" id="client-birth-date" class="w-full text-dark rounded-lg p-3 form-input" required>
                     </div>
-                    <div class="form-row">
-                        <label for="client-name">Nome:</label>
-                        <input type="text" id="client-name" placeholder="Digite o nome do cliente">
+                    <div>
+                        <label for="client-name" class="block text-sm font-medium text-dark mb-2">Nome Completo</label>
+                        <input type="text" id="client-name" placeholder="Ex: João da Silva" class="w-full text-dark rounded-lg p-3 form-input" required>
                     </div>
-                    <div class="form-row">
-                        <label for="client-birth-date">Data de Nascimento:</label>
-                        <input type="date" id="client-birth-date" placeholder="Digite a data de nascimento do cliente">
+                     <div>
+                        <label for="client-cpf" class="block text-sm font-medium text-dark mb-2">CPF</label>
+                        <input type="text" id="client-cpf" placeholder="000.000.000-00" class="w-full text-dark rounded-lg p-3 form-input" required>
                     </div>
-                    <div class="form-row">
-                        <label for="client-email">Email:</label>
-                        <input type="email" id="client-email" placeholder="Digite o email do cliente">
+                     <div>
+                        <label for="client-phone" class="block text-sm font-medium text-dark mb-2">Telefone</label>
+                        <input type="tel" id="client-phone" placeholder="(00) 90000-0000" class="w-full text-dark rounded-lg p-3 form-input" required>
                     </div>
-                    <div class="form-row">
-                        <label for="client-phone">Telefone:</label>
-                        <input type="tel" id="client-phone" placeholder="Digite o telefone do cliente">
+                    <div>
+                        <label for="client-email" class="block text-sm font-medium text-dark mb-2">Email</label>
+                        <input type="email" id="client-email" placeholder="email@exemplo.com" class="w-full text-dark rounded-lg p-3 form-input" required>
                     </div>
-                    <div class="form-row">
-                        <label for="card-type">Tipo de Cartão:</label>
-                        <select id="card-type">
+                    <div>
+                        <label for="card-type" class="block text-sm font-medium text-dark mb-2">Modalidade</label>
+                        <select id="card-type" class="w-full text-dark rounded-lg p-3 form-input">
                             <option value="pre">Pré-pago</option>
                             <option value="pos">Pós-pago</option>
                         </select>
                     </div>
-                    <div class="form-row">
-                        <button class="btn" id="btn-activate-card">Ativar Cartão</button>
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-success hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300">Ativar Cartão e Cadastrar</button>
                     </div>
-                </div>
+                </form>
             </div>
-        </div>
+        </main>
     </div>
-    <div id="loading" class="loading">
-        <div class="spinner"></div>
-    </div>
-    <script src="../static/js/card_reader.js"></script>
-</body>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Elementos da UI ---
+            const loadingOverlay = document.getElementById('loading');
+            const states = {
+                waiting: document.getElementById('state-waiting'),
+                cpfCheck: document.getElementById('state-cpf-check'),
+                inactiveCard: document.getElementById('state-inactive-card'),
+            };
+            const allStates = Object.values(states);
+
+            const btnSimulateInactive = document.getElementById('btn-simulate-inactive');
+            const btnSimulateActive = document.getElementById('btn-simulate-active');
+            const cancelButtons = document.querySelectorAll('.cancel-button');
+            
+            const formCheckCpf = document.getElementById('form-check-cpf');
+            const formActivateCard = document.getElementById('form-activate-card');
+
+            const cardNumberCpfSpan = document.getElementById('card-number-cpf');
+            const cardNumberNewSpan = document.getElementById('card-number-new');
+
+            const inputCpfCheck = document.getElementById('client-cpf-check');
+            const inputsActivate = {
+                name: document.getElementById('client-name'),
+                cpf: document.getElementById('client-cpf'),
+                birthDate: document.getElementById('client-birth-date'),
+                phone: document.getElementById('client-phone'),
+                email: document.getElementById('client-email'),
+                cardType: document.getElementById('card-type'),
+            };
+
+            let currentCardNumber = null;
+
+            // --- Funções de UI e Helpers ---
+            const showLoading = (show) => loadingOverlay.classList.toggle('hidden-state', !show);
+            const showState = (stateToShow) => allStates.forEach(s => s.classList.toggle('hidden-state', s !== stateToShow));
+            
+            function resetToWaitingState() {
+                formCheckCpf.reset();
+                formActivateCard.reset();
+                currentCardNumber = null;
+                showState(states.waiting);
+            }
+
+            function applyMask(input, maskFn) {
+                input.addEventListener('input', (e) => e.target.value = maskFn(e.target.value));
+            }
+            const cpfMask = v => v.replace(/\D/g, '').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            const phoneMask = v => v.replace(/\D/g, '').replace(/^(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2').slice(0, 15);
+            applyMask(inputCpfCheck, cpfMask);
+            applyMask(inputsActivate.cpf, cpfMask);
+            applyMask(inputsActivate.phone, phoneMask);
+
+            /**
+             * Função segura para fazer requisições fetch com timeout e melhor handling de erros.
+             * @param {string} url - A URL da API.
+             * @param {object} options - Opções do fetch (method, headers, body).
+             * @param {number} timeout - Tempo de espera em milissegundos.
+             */
+            async function safeFetch(url, options = {}, timeout = 10000) {
+                console.log(`[safeFetch] Iniciando: ${options.method || 'GET'} para ${url}`);
+                const controller = new AbortController();
+                const id = setTimeout(() => controller.abort(), timeout);
+
+                try {
+                    const response = await fetch(url, {
+                        ...options,
+                        signal: controller.signal
+                    });
+
+                    // Limpa o timeout se a resposta chegar a tempo
+                    clearTimeout(id);
+
+                    // Verifica se a resposta do servidor foi um erro (ex: 404, 500)
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error(`[safeFetch] Erro de Servidor ${response.status}:`, errorText);
+                        throw new Error(`Erro no servidor: ${response.status}`);
+                    }
+
+                    // Se a resposta for OK mas vazia (204 No Content)
+                    if (response.status === 204) {
+                        return { success: true };
+                    }
+                    
+                    const data = await response.json();
+                    console.log('[safeFetch] Sucesso:', data);
+                    return data;
+
+                } catch (error) {
+                    clearTimeout(id);
+                    if (error.name === 'AbortError') {
+                        throw new Error('A requisição demorou muito. Verifique o servidor.');
+                    }
+                    // Propaga outros erros (de rede, JSON inválido, etc)
+                    throw error;
+                }
+            }
+
+
+            // --- Lógica de Negócio e API ---
+
+            btnSimulateInactive.addEventListener('click', async () => {
+                showLoading(true);
+                try {
+                    const data = await safeFetch('/api/generate-card-number');
+                    if (data.success) {
+                        currentCardNumber = data.card_number;
+                        cardNumberCpfSpan.textContent = currentCardNumber.toString().padStart(4, '0');
+                        showState(states.cpfCheck);
+                    } else {
+                        alert(`Erro: ${data.message || 'Não foi possível gerar um número de cartão.'}`);
+                    }
+                } catch (error) {
+                    alert(`Falha na comunicação: ${error.message}`);
+                } finally {
+                    showLoading(false);
+                }
+            });
+
+            btnSimulateActive.addEventListener('click', async () => {
+                showLoading(true);
+                try {
+                    const data = await safeFetch('/api/simulate-active-card');
+                    if (data.success) {
+                        window.location.href = '/';
+                    } else {
+                        alert(`Erro: ${data.message || 'Não foi possível simular o cartão.'}`);
+                    }
+                } catch (error) {
+                    alert(`Falha na comunicação: ${error.message}`);
+                } finally {
+                    showLoading(false);
+                }
+            });
+
+            formCheckCpf.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const cpf = inputCpfCheck.value;
+                if (!cpf) return alert('Por favor, informe o CPF.');
+
+                showLoading(true);
+                try {
+                    const options = {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ cpf: cpf })
+                    };
+                    const data = await safeFetch('/api/check-client', options);
+                    
+                    if (data.success) {
+                        if (data.client_exists) {
+                            window.location.href = '/';
+                        } else {
+                            cardNumberNewSpan.textContent = currentCardNumber.toString().padStart(4, '0');
+                            inputsActivate.cpf.value = cpf;
+                            showState(states.inactiveCard);
+                        }
+                    } else {
+                        alert(`Erro: ${data.message}`);
+                    }
+                } catch (error) {
+                    alert(`Falha na comunicação: ${error.message}`);
+                } finally {
+                    showLoading(false);
+                }
+            });
+
+            formActivateCard.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = {
+                    cpf: inputsActivate.cpf.value,
+                    name: inputsActivate.name.value,
+                    birth_date: inputsActivate.birthDate.value,
+                    email: inputsActivate.email.value,
+                    phone: inputsActivate.phone.value,
+                    card_type: inputsActivate.cardType.value,
+                    card_number: currentCardNumber,
+                };
+                
+                showLoading(true);
+                try {
+                     const options = {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(formData)
+                    };
+                    const data = await safeFetch('/api/activate-card', options);
+
+                    if (data.success) {
+                        alert('Cartão ativado com sucesso!');
+                        window.location.href = '/';
+                    } else {
+                        alert(`Erro: ${data.message}`);
+                    }
+                } catch (error) {
+                    alert(`Falha na comunicação: ${error.message}`);
+                } finally {
+                    showLoading(false);
+                }
+            });
+
+            cancelButtons.forEach(btn => btn.addEventListener('click', resetToWaitingState));
+            showState(states.waiting);
+        });
+    </script>
+</body>
 </html>
