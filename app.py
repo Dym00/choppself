@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 import json
 import random
@@ -199,6 +199,29 @@ def validar_idade(birth_date_str):
         return False
 
 # --- Rotas da Aplicação ---
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    # Se o formulário for enviado (método POST)
+    if request.method == 'POST':
+        email = request.form.get('username') # 'username' é o nome do campo no HTML
+        senha = request.form.get('password') # 'password' é o nome do campo no HTML
+
+        # --- Autenticação Simplificada ---
+        # Verifica se o usuário e a senha correspondem aos valores fixos.
+        if email == 'admin' and senha == 'Aa@@2022':
+            # Se os dados estiverem corretos, armazena informações na sessão
+            session['employee_logged_in'] = True
+            session['employee_name'] = 'Admin' # Nome fixo para o funcionário
+            flash('Login realizado com sucesso!', 'success')
+            return redirect(url_for('card_reader')) # Redireciona para a tela de leitura de cartão
+        else:
+            # Se não encontrar, exibe uma mensagem de erro
+            flash('Usuário ou senha inválidos. Tente novamente.', 'danger')
+
+    # Se for um acesso via GET ou se o login falhar, renderiza a página de login
+    return render_template('login.html')
 
 @app.route('/card-reader')
 def card_reader():
